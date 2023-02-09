@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import illogiclaunch.ModernLauncher;
 
+import static illogicworks.modernifier.Modernifiability.*;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class Installation {
@@ -22,7 +23,7 @@ public class Installation {
 	private static final boolean DEV_ENV = true;
 	
 	public static void install(Path targetPath) throws IOException {
-		if (modernifiabilityOf(targetPath) != Modernifiability.MODERNIFIABLE)
+		if (modernifiabilityOf(targetPath) != MODERNIFIABLE)
 			throw new IllegalArgumentException("Target is not modernifiable! " + modernifiabilityOf(targetPath));
 
 		URI ourJar, targetJar;
@@ -80,14 +81,18 @@ public class Installation {
 	
 	public static Modernifiability modernifiabilityOf(Path path) throws IOException {
 		if (!path.toString().endsWith(".jar")) {
-			return Modernifiability.NOT_A_JAR;
+			return NOT_A_JAR;
 		}
 		try (JarFile jar = new JarFile(path.toFile())) {
 			if ("true".equals(jar.getManifest().getMainAttributes().getValue(MF_ENTRY))) {
-				return Modernifiability.ALREADY_MODERNIFIED;
+				return ALREADY_MODERNIFIED;
 			}
+		} catch (IOException e) {
+			// Either actually not a jar, given it couldn't open as one,
+			// or not a runnable jar, because of no manifest
+			return NOT_A_JAR;
 		}
-		return Modernifiability.MODERNIFIABLE;
+		return MODERNIFIABLE;
 	}
 
 	private static URI zipURI(URI path) throws URISyntaxException {
