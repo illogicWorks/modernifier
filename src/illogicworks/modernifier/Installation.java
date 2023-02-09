@@ -5,6 +5,8 @@ import java.net.*;
 import java.nio.file.*;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
@@ -14,11 +16,15 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class Installation {
 	private static final String MF_PATH = "META-INF/MANIFEST.MF";
+	private static final String MF_ENTRY = "Modernified";
 	private static final String LAUNCHER_CLASS = ModernLauncher.class.getName();
 	private static final String DEV_PATH = "bin/built.jar";
 	private static final boolean DEV_ENV = true;
+	
+	public static void install(Path targetPath) throws IOException {
+		if (modernifiabilityOf(targetPath) != Modernifiability.MODERNIFIABLE)
+			throw new IllegalArgumentException("Target is not modernifiable! " + modernifiabilityOf(targetPath));
 
-	static void install(Path targetPath) throws IOException {
 		URI ourJar, targetJar;
 		try {
 			ourJar = zipURI(!DEV_ENV ? Installation.class.getProtectionDomain().getCodeSource().getLocation().toURI()
@@ -29,10 +35,6 @@ public class Installation {
 		}
 		try (FileSystem us = FileSystems.newFileSystem(ourJar, new HashMap<>(), null);
 			 FileSystem target = FileSystems.newFileSystem(targetJar, new HashMap<>(), null)) {
-
-			if (Files.exists(target.getPath(ModernLauncher.MAIN_FILE_PATH))) {
-				throw new IllegalArgumentException("Target is already modernified!");
-			}
 
 			for (Path root : us.getRootDirectories()) {
 				for (Path p : iter(Files.walk(root)
@@ -59,18 +61,33 @@ public class Installation {
 			manifest = new Manifest(is);
 		}
 		
-		String originalMainClass = manifest.getMainAttributes().getValue("Main-Class");
+		Attributes attributes = manifest.getMainAttributes();
+
+		String originalMainClass = attributes.getValue("Main-Class");
 		System.out.println("Pointing launcher to " + originalMainClass);
 		Files.write(target.getPath(ModernLauncher.MAIN_FILE_PATH.substring(1)), Collections.singleton(originalMainClass)); // Java 8 :(
-		
-		manifest.getMainAttributes().putValue("Main-Class", LAUNCHER_CLASS);
-		manifest.getMainAttributes().putValue("Multi-Release", "true"); // flatlaf has some J9+ specifics
+
+		attributes.putValue("Main-Class", LAUNCHER_CLASS);
+		attributes.putValue("Multi-Release", "true"); // flatlaf has some J9+ specifics
+		attributes.putValue(MF_ENTRY, "true"); // add an entry for checking already modernified jars
 		// TODO check if we need to merge more things
 		
 		System.out.println("Updating main class to launcher");
 		try (OutputStream out = Files.newOutputStream(target.getPath(MF_PATH))) {
 			manifest.write(out);
 		}
+	}
+	
+	public static Modernifiability modernifiabilityOf(Path path) throws IOException {
+		if (!path.toString().endsWith(".jar")) {
+			return Modernifiability.NOT_A_JAR;
+		}
+		try (JarFile jar = new JarFile(path.toFile())) {
+			if ("true".equals(jar.getManifest().getMainAttributes().getValue(MF_ENTRY))) {
+				return Modernifiability.ALREADY_MODERNIFIED;
+			}
+		}
+		return Modernifiability.MODERNIFIABLE;
 	}
 
 	private static URI zipURI(URI path) throws URISyntaxException {
