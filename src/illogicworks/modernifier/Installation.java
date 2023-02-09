@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.file.*;
 import java.util.HashMap;
+import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
 public class Installation {
@@ -35,16 +36,20 @@ public class Installation {
 				Files.copy(p, tempFile, REPLACE_EXISTING);
 			}
 		}
+		try (InputStream is = Files.newInputStream(temp.resolve("META-INF"))) {
+			Manifest manifest = new Manifest(is);
+			// TODO read and put main class for launcher
+		}
 		
 		for (Path p : iter(Files.walk(temp))) {
 			if (Files.isDirectory(p)) continue;
 			System.out.println("Copying " + p);
 			Path fileTarget = temp.relativize(p);
 			Path finalPath = target.getPath(fileTarget.toString());
+			Files.deleteIfExists(finalPath);
 			Files.createDirectories(finalPath);
 			Files.copy(p, finalPath, REPLACE_EXISTING);
 		}
-		
 		us.close();
 		target.close();
 		System.out.println("DID Stuff, temp at " + temp);
