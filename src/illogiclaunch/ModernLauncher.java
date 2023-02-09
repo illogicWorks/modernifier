@@ -11,7 +11,8 @@ import com.formdev.flatlaf.FlatLightLaf;
 
 public class ModernLauncher {
 	public static final String MAIN_FILE_PATH = "/illogicmainclass.txt";
-	public static void main(String[] args) throws IOException {
+
+	public static void main(String[] args) {
 		FlatLightLaf.setup();
 		String mainClass;
 		try (InputStream is = ModernLauncher.class.getResourceAsStream(MAIN_FILE_PATH)) {
@@ -33,8 +34,8 @@ public class ModernLauncher {
 			fail("Exception finding or invoking main class");
 			throw new IllegalStateException(e);
 		}
-		
 	}
+
 	private static void fail(String reason) {
 		System.err.println("Failed to launch! " + reason);
 		if (!GraphicsEnvironment.isHeadless())
