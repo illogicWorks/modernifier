@@ -26,28 +26,28 @@ public class Installation {
 		
 		Path temp = Files.createTempDirectory("modernifier-temp");
 		
-		
 		for (Path root : us.getRootDirectories()) {
-			for (Path p : iter(Files.walk(temp)
+			for (Path p : iter(Files.walk(root)
 					.filter(p -> !p.toString().startsWith("illogicworks")))) {
-				if (Files.isDirectory(p) && !p.toString().equals("illogicworks")) {
-					System.out.println("Temping " + p);
-					Files.copy(p, temp.resolve(p.toString()), REPLACE_EXISTING);
-				}
+				if (p.toString().equals("/")) continue;
+				System.out.println("Temping " + p);
+				Path tempFile = temp.resolve(p.toString().substring(1));
+				Files.copy(p, tempFile, REPLACE_EXISTING);
 			}
 		}
 		
 		for (Path p : iter(Files.walk(temp))) {
-			if (Files.isDirectory(p)) {
-				System.out.println("Copying " + p);
-				Files.copy(p, target.getPath(p.toString()), REPLACE_EXISTING);
-			}
+			if (Files.isDirectory(p)) continue;
+			System.out.println("Copying " + p);
+			Path fileTarget = temp.relativize(p);
+			Path finalPath = target.getPath(fileTarget.toString());
+			Files.createDirectories(finalPath);
+			Files.copy(p, finalPath, REPLACE_EXISTING);
 		}
 		
 		us.close();
 		target.close();
 		System.out.println("DID Stuff, temp at " + temp);
-		Files.deleteIfExists(temp);
 	}
 	static URI zipURI(URI path) throws URISyntaxException {
 		return URI.create("jar:" + path);
