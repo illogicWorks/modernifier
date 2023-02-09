@@ -23,64 +23,52 @@ public class Installation {
 		try {
 			ourJar = zipURI(!DEV_ENV ? Installation.class.getProtectionDomain().getCodeSource().getLocation().toURI()
 							: Paths.get(DEV_PATH).toUri());
-			targetJar = zipURI(targetPath.toRealPath().toUri());
+			targetJar = zipURI(targetPath.toUri());
 		} catch (URISyntaxException e) {
 			throw new IllegalStateException(e);
 		}
-		FileSystem us = FileSystems.newFileSystem(ourJar, new HashMap<>(), null);
-		FileSystem target = FileSystems.newFileSystem(targetJar, new HashMap<>(), null);
+		try (FileSystem us = FileSystems.newFileSystem(ourJar, new HashMap<>(), null);
+			 FileSystem target = FileSystems.newFileSystem(targetJar, new HashMap<>(), null)) {
 
-		if (Files.exists(target.getPath(ModernLauncher.MAIN_FILE_PATH))) {
-			us.close();
-			target.close();
-			throw new IllegalArgumentException("Target is already modernified!");
-		}
-		
-		Path temp = Files.createTempDirectory("modernifier-temp");
-		
-		for (Path root : us.getRootDirectories()) {
-			for (Path p : iter(Files.walk(root)
-					.filter(p -> !p.toString().startsWith("/illogicworks") // don't copy installer
+			if (Files.exists(target.getPath(ModernLauncher.MAIN_FILE_PATH))) {
+				throw new IllegalArgumentException("Target is already modernified!");
+			}
+
+			for (Path root : us.getRootDirectories()) {
+				for (Path p : iter(Files.walk(root)
+						.filter(p -> !Files.isDirectory(p)
+								&& !p.toString().startsWith("/illogicworks") // don't copy installer
 								&& !p.toString().equals("/") // special case, idk what is this
 								&& !p.toString().equals('/' + MF_PATH) // we special-case the manifest later
 								&& !p.toString().equals("/module-info.class") // don't rename to flatlaf
-					))) {
-				System.out.println("Temping " + p);
-				Path tempFile = temp.resolve(p.toString().substring(1));
-				Files.copy(p, tempFile, REPLACE_EXISTING);
+						))) {
+					System.out.println("Installing class " + p);
+					Path pathInTarget = target.getPath(p.toString());
+					Files.deleteIfExists(pathInTarget); // REPLACE_EXISTING doesn't seem to actually work on zipfs
+					Files.createDirectories(pathInTarget);
+					Files.copy(p, pathInTarget, REPLACE_EXISTING);
+				}
 			}
+			handleManifest(target);
 		}
-
-		handleManifest(target, temp);
-		
-		for (Path p : iter(Files.walk(temp))) {
-			if (Files.isDirectory(p)) continue;
-			System.out.println("Copying " + p);
-			Path fileTarget = temp.relativize(p);
-			Path finalPath = target.getPath(fileTarget.toString());
-			Files.deleteIfExists(finalPath);
-			Files.createDirectories(finalPath);
-			Files.copy(p, finalPath, REPLACE_EXISTING);
-		}
-		us.close();
-		target.close();
-		System.out.println("DID Stuff, temp at " + temp);
 	}
 
-	private static void handleManifest(FileSystem target, Path base) throws IOException {
+	private static void handleManifest(FileSystem target) throws IOException {
 		Manifest manifest;
 		try (InputStream is = Files.newInputStream(target.getPath(MF_PATH))) {
 			manifest = new Manifest(is);
 		}
 		
 		String originalMainClass = manifest.getMainAttributes().getValue("Main-Class");
-		Files.write(base.resolve(ModernLauncher.MAIN_FILE_PATH.substring(1)), Collections.singleton(originalMainClass)); // Java 8 :(
+		System.out.println("Pointing launcher to " + originalMainClass);
+		Files.write(target.getPath(ModernLauncher.MAIN_FILE_PATH.substring(1)), Collections.singleton(originalMainClass)); // Java 8 :(
 		
 		manifest.getMainAttributes().putValue("Main-Class", LAUNCHER_CLASS);
 		manifest.getMainAttributes().putValue("Multi-Release", "true"); // flatlaf has some J9+ specifics
 		// TODO check if we need to merge more things
 		
-		try (OutputStream out = Files.newOutputStream(base.resolve(MF_PATH))) {
+		System.out.println("Updating main class to launcher");
+		try (OutputStream out = Files.newOutputStream(target.getPath(MF_PATH))) {
 			manifest.write(out);
 		}
 	}
