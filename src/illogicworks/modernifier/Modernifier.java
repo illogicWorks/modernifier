@@ -2,8 +2,11 @@ package illogicworks.modernifier;
 
 import javax.swing.*;
 
+import com.formdev.flatlaf.FlatLightLaf;
+
 public class Modernifier {
 	public static void main(String[] args) {
+		FlatLightLaf.setup();
 		JFrame frame = new JFrame();// creating instance of JFrame
 
 		JButton b = new JButton("click");// creating instance of JButton
