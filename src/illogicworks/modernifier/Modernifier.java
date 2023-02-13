@@ -1,10 +1,14 @@
 package illogicworks.modernifier;
 
+import static javax.swing.SwingConstants.*;
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -47,8 +51,12 @@ public class Modernifier {
 				e.printStackTrace();
 			}
 		});
-
 		
+		JLabel title = new JLabel("Modernifier!");
+		title.setHorizontalTextPosition(CENTER);
+		title.setHorizontalAlignment(CENTER);
+		title.setFont(new Font("Courier", Font.PLAIN, 30));
+		frame.add(title, gbc);
 		frame.add(b, gbc);
 		frame.setVisible(true);// making the frame visible
 	}
