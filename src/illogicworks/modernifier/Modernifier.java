@@ -18,6 +18,7 @@ public class Modernifier {
 	public static void main(String[] args) {
 		FlatLightLaf.setup();
 		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridwidth = GridBagConstraints.REMAINDER;
