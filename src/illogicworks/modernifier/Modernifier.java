@@ -56,8 +56,14 @@ public class Modernifier {
 		title.setHorizontalTextPosition(CENTER);
 		title.setHorizontalAlignment(CENTER);
 		title.setFont(new Font("Courier", Font.PLAIN, 30));
+		
+		JProgressBar progress = new JProgressBar();
+		progress.setPreferredSize(new Dimension(100, 10));
+		
 		frame.add(title, gbc);
 		frame.add(b, gbc);
+		frame.add(progress, gbc);
+		
 		frame.setVisible(true);// making the frame visible
 	}
 }
