@@ -5,12 +5,8 @@ import java.net.*;
 import java.nio.file.*;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import java.util.jar.*;
 import java.util.stream.Stream;
-
-import javax.swing.JProgressBar;
 
 import illogiclaunch.ModernLauncher;
 
@@ -23,8 +19,9 @@ public class Installation {
 	private static final String LAUNCHER_CLASS = ModernLauncher.class.getName();
 	private static final String DEV_PATH = "bin/built.jar";
 	private static final boolean DEV_ENV = true;
+	private static int FILE_COUNT; // lazy at getFileCount
 	
-	public static void install(Path targetPath) throws IOException {
+	public static void install(Path targetPath, ProgressHandler progress) throws IOException {
 		if (modernifiabilityOf(targetPath) != MODERNIFIABLE)
 			throw new IllegalArgumentException("Target is not modernifiable! " + modernifiabilityOf(targetPath));
 
@@ -38,19 +35,18 @@ public class Installation {
 		}
 		try (FileSystem us = FileSystems.newFileSystem(ourJar, new HashMap<>(), null);
 			 FileSystem target = FileSystems.newFileSystem(targetJar, new HashMap<>(), null)) {
+			progress.setMax(getFileCount(us));
+			int copied = 0;
 			for (Path root : us.getRootDirectories()) {
 				for (Path p : iter(Files.walk(root)
-						.filter(p -> !Files.isDirectory(p)
-								&& !p.toString().startsWith("/illogicworks") // don't copy installer
-								&& !p.toString().equals("/") // special case, idk what is this
-								&& !p.toString().equals('/' + MF_PATH) // we special-case the manifest later
-								&& !p.toString().equals("/module-info.class") // don't rename to flatlaf
-						))) {
+						.filter(Installation::shouldCopy))) {
 					System.out.println("Installing class " + p);
 					Path pathInTarget = target.getPath(p.toString());
 					Files.deleteIfExists(pathInTarget); // REPLACE_EXISTING doesn't seem to actually work on zipfs
 					Files.createDirectories(pathInTarget);
 					Files.copy(p, pathInTarget, REPLACE_EXISTING);
+					copied++;
+					progress.update(copied);
 				}
 			}
 			handleManifest(target);
@@ -94,6 +90,27 @@ public class Installation {
 			return NOT_A_JAR;
 		}
 		return MODERNIFIABLE;
+	}
+
+	private static int getFileCount(FileSystem ourJar) throws IOException {
+		int count = FILE_COUNT;
+		if (count == 0) {
+			// zips and jars have a single root
+			Path root = ourJar.getRootDirectories().iterator().next();
+			return FILE_COUNT = (int)Files.walk(root)
+									.filter(Installation::shouldCopy)
+									.count();
+		}
+		return count;
+	}
+	
+	// filter for walks, here for reusability
+	private static boolean shouldCopy(Path p) {
+		return !Files.isDirectory(p)
+				&& !p.toString().startsWith("/illogicworks") // don't copy installer
+				&& !p.toString().equals("/") // special case, idk what is this
+				&& !p.toString().equals('/' + MF_PATH) // we special-case the manifest later
+				&& !p.toString().equals("/module-info.class");
 	}
 
 	private static URI zipURI(URI path) throws URISyntaxException {

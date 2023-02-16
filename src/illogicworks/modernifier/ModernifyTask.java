@@ -6,10 +6,10 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
-public class ModernifyTask extends SwingWorker<Object, Object> {
-	Path p;
-	JProgressBar progress;
-	JLabel doneLabel;
+public class ModernifyTask extends SwingWorker<Object, Object> implements ProgressHandler {
+	private final Path p;
+	private final JProgressBar progress;
+	private final JLabel doneLabel;
 	
 	public ModernifyTask(Path p, JProgressBar progress, JLabel doneLabel) {
 		this.p = p;
@@ -25,10 +25,20 @@ public class ModernifyTask extends SwingWorker<Object, Object> {
 	
 	@Override
 	protected Object doInBackground() throws Exception {
-		progress.setIndeterminate(true); // This must be changed
-		Installation.install(p);
-		progress.setIndeterminate(false);
+		progress.setIndeterminate(true); // install will give it determination
+		Installation.install(p, this);
 		return null;
+	}
+	
+	@Override
+	public void setMax(int max) {
+		progress.setMaximum(max);
+		progress.setIndeterminate(false);
+	}
+	
+	@Override
+	public void update(int current) {
+		progress.setValue(current);
 	}
 	
 }
