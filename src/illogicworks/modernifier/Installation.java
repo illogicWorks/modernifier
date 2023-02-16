@@ -35,12 +35,12 @@ public class Installation {
 		}
 		try (FileSystem us = FileSystems.newFileSystem(ourJar, new HashMap<>(), null);
 			 FileSystem target = FileSystems.newFileSystem(targetJar, new HashMap<>(), null)) {
-			progress.setMax(getFileCount(us));
+			progress.setMax(getFileCount(us) + 2);
 			int copied = 0;
 			for (Path root : us.getRootDirectories()) {
 				for (Path p : iter(Files.walk(root)
 						.filter(Installation::shouldCopy))) {
-					System.out.println("Installing class " + p);
+					progress.detail("Installing class " + p);
 					Path pathInTarget = target.getPath(p.toString());
 					Files.deleteIfExists(pathInTarget); // REPLACE_EXISTING doesn't seem to actually work on zipfs
 					Files.createDirectories(pathInTarget);
@@ -49,11 +49,11 @@ public class Installation {
 					progress.update(copied);
 				}
 			}
-			handleManifest(target);
+			handleManifest(target, progress);
 		}
 	}
 
-	private static void handleManifest(FileSystem target) throws IOException {
+	private static void handleManifest(FileSystem target, ProgressHandler progress) throws IOException {
 		Manifest manifest;
 		try (InputStream is = Files.newInputStream(target.getPath(MF_PATH))) {
 			manifest = new Manifest(is);
@@ -62,7 +62,7 @@ public class Installation {
 		Attributes attributes = manifest.getMainAttributes();
 
 		String originalMainClass = attributes.getValue("Main-Class");
-		System.out.println("Pointing launcher to " + originalMainClass);
+		progress.detail("Pointing launcher to " + originalMainClass);
 		Files.write(target.getPath(ModernLauncher.MAIN_FILE_PATH), Collections.singleton(originalMainClass)); // Java 8 :(
 
 		attributes.putValue("Main-Class", LAUNCHER_CLASS);
@@ -70,7 +70,7 @@ public class Installation {
 		attributes.putValue(MF_ENTRY, "true"); // add an entry for checking already modernified jars
 		// TODO check if we need to merge more things
 		
-		System.out.println("Updating main class to launcher");
+		progress.detail("Updating main class to launcher");
 		try (OutputStream out = Files.newOutputStream(target.getPath(MF_PATH))) {
 			manifest.write(out);
 		}

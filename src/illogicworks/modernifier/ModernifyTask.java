@@ -41,4 +41,10 @@ public class ModernifyTask extends SwingWorker<Object, Object> implements Progre
 		progress.setValue(current);
 	}
 	
+	@Override
+	public void detail(String detail) {
+		// TODO Maybe display
+		System.out.println(detail);
+	}
+	
 }
