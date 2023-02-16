@@ -108,7 +108,6 @@ public class Installation {
 	private static boolean shouldCopy(Path p) {
 		return !Files.isDirectory(p)
 				&& !p.toString().startsWith("/illogicworks") // don't copy installer
-				&& !p.toString().equals("/") // special case, idk what is this
 				&& !p.toString().equals('/' + MF_PATH) // we special-case the manifest later
 				&& !p.toString().equals("/module-info.class");
 	}
