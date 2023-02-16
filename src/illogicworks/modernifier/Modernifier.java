@@ -4,14 +4,10 @@ import static javax.swing.SwingConstants.*;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
 import javax.swing.*;
