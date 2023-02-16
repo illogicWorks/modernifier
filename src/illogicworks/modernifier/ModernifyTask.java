@@ -1,10 +1,9 @@
 package illogicworks.modernifier;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 
 public class ModernifyTask extends SwingWorker<Object, Object> implements ProgressHandler {
 	private final Path p;
@@ -24,7 +23,7 @@ public class ModernifyTask extends SwingWorker<Object, Object> implements Progre
 	}
 	
 	@Override
-	protected Object doInBackground() throws Exception {
+	protected Object doInBackground() throws IOException {
 		progress.setIndeterminate(true); // install will give it determination
 		Installation.install(p, this);
 		return null;
