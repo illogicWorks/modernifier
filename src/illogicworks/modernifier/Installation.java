@@ -35,7 +35,7 @@ public class Installation {
 		}
 		try (FileSystem us = FileSystems.newFileSystem(ourJar, new HashMap<>(), null);
 			 FileSystem target = FileSystems.newFileSystem(targetJar, new HashMap<>(), null)) {
-			progress.setMax(getFileCount(us) + 2);
+			progress.setMax(getFileCount(us));
 			int copied = 0;
 			for (Path root : us.getRootDirectories()) {
 				for (Path p : iter(Files.walk(root)
