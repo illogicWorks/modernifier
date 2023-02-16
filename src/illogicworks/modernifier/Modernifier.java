@@ -46,7 +46,7 @@ public class Modernifier {
 		b.setBounds(130, 100, 100, 40);// x axis, y axis, width, height
 		b.addActionListener(ev -> {
 			try {
-				int res = fc.showOpenDialog(null);
+				int res = fc.showOpenDialog(frame);
 				if (res == JFileChooser.APPROVE_OPTION) {
 					p = fc.getSelectedFile().toPath();
 				} else {
