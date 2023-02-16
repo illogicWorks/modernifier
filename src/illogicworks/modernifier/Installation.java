@@ -67,7 +67,7 @@ public class Installation {
 
 		String originalMainClass = attributes.getValue("Main-Class");
 		System.out.println("Pointing launcher to " + originalMainClass);
-		Files.write(target.getPath(ModernLauncher.MAIN_FILE_PATH.substring(1)), Collections.singleton(originalMainClass)); // Java 8 :(
+		Files.write(target.getPath(ModernLauncher.MAIN_FILE_PATH), Collections.singleton(originalMainClass)); // Java 8 :(
 
 		attributes.putValue("Main-Class", LAUNCHER_CLASS);
 		attributes.putValue("Multi-Release", "true"); // flatlaf has some J9+ specifics
