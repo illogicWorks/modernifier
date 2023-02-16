@@ -2,6 +2,7 @@ package illogicworks.modernifier;
 
 import static javax.swing.SwingConstants.*;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -34,6 +35,15 @@ public class Modernifier {
 		JFileChooser fc = new JFileChooser();
 		fc.setCurrentDirectory(new File("."));
 
+		JProgressBar progress = new JProgressBar();
+		progress.setPreferredSize(new Dimension(100, 10));
+		
+		JLabel doneText = new JLabel("Done!");
+		doneText.setHorizontalTextPosition(CENTER);
+		doneText.setHorizontalAlignment(CENTER);
+		doneText.setForeground(new Color(12, 179, 15));
+		doneText.setVisible(false);
+		
 		JButton b = new JButton("Install");
 		
 		b.setPreferredSize(new Dimension(100, 60));
@@ -46,7 +56,8 @@ public class Modernifier {
 				} else {
 					throw null;
 				}
-				//Installation.install(p);
+				ModernifyTask task = new ModernifyTask(p, progress, doneText);
+			    task.execute();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -57,12 +68,12 @@ public class Modernifier {
 		title.setHorizontalAlignment(CENTER);
 		title.setFont(new Font("Courier", Font.PLAIN, 30));
 		
-		JProgressBar progress = new JProgressBar();
-		progress.setPreferredSize(new Dimension(100, 10));
+		//doneText.setFont(new Font("Courier", Font.PLAIN, 30));
 		
 		frame.add(title, gbc);
 		frame.add(b, gbc);
 		frame.add(progress, gbc);
+		frame.add(doneText, gbc);
 		
 		frame.setVisible(true);// making the frame visible
 	}

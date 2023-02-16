@@ -10,6 +10,8 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Stream;
 
+import javax.swing.JProgressBar;
+
 import illogiclaunch.ModernLauncher;
 
 import static illogicworks.modernifier.Modernifiability.*;
@@ -36,7 +38,6 @@ public class Installation {
 		}
 		try (FileSystem us = FileSystems.newFileSystem(ourJar, new HashMap<>(), null);
 			 FileSystem target = FileSystems.newFileSystem(targetJar, new HashMap<>(), null)) {
-
 			for (Path root : us.getRootDirectories()) {
 				for (Path p : iter(Files.walk(root)
 						.filter(p -> !Files.isDirectory(p)
