@@ -37,12 +37,14 @@ public class ModernifyTask extends SwingWorker<Object, Object> implements Progre
 	
 	@Override
 	public void setMax(int max) {
+		// TODO should be invoked on event dispatcher threads
 		progress.setMaximum(max);
 		progress.setIndeterminate(false);
 	}
 	
 	@Override
 	public void update(int current) {
+		// TODO should invoked on event dispatcher threads
 		progress.setValue(current);
 	}
 	
