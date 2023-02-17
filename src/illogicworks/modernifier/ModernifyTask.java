@@ -25,7 +25,13 @@ public class ModernifyTask extends SwingWorker<Object, Object> implements Progre
 	@Override
 	protected Object doInBackground() throws IOException {
 		progress.setIndeterminate(true); // install will give it determination
-		Installation.install(p, this);
+		try {
+			Installation.install(p, this);
+		} catch (Exception e) {
+			// TODO reset state and notify user
+			e.printStackTrace();
+			throw e;
+		}
 		return null;
 	}
 	
