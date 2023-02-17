@@ -76,7 +76,7 @@ public class Installation {
 		}
 	}
 	
-	public static Modernifiability modernifiabilityOf(Path path) throws IOException {
+	public static Modernifiability modernifiabilityOf(Path path) {
 		if (!path.toString().endsWith(".jar")) {
 			return NOT_A_JAR;
 		}
