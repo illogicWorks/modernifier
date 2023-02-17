@@ -70,6 +70,7 @@ public class Modernifier {
 		frame.add(b, gbc);
 		frame.add(progress, gbc);
 		frame.add(doneText, gbc);
+		frame.setTransferHandler(new DndHandler(progress, doneText));
 		
 		frame.setVisible(true);// making the frame visible
 	}
