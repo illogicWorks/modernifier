@@ -5,7 +5,7 @@ import java.nio.file.Path;
 
 import javax.swing.*;
 
-public class ModernifyTask extends SwingWorker<Object, Object> implements ProgressHandler {
+public class ModernifyTask extends SwingWorker<Void, Object> implements ProgressHandler {
 	private final Path p;
 	private final JProgressBar progress;
 	private final JLabel doneLabel;
@@ -23,7 +23,7 @@ public class ModernifyTask extends SwingWorker<Object, Object> implements Progre
 	}
 	
 	@Override
-	protected Object doInBackground() throws IOException {
+	protected Void doInBackground() throws IOException {
 		progress.setIndeterminate(true); // install will give it determination
 		try {
 			Installation.install(p, this);
