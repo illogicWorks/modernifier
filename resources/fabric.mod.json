@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "mod-ernifier",
+  "version": "1.0.0",
+
+  "name": "Mod-ernifier",
+  "description": "Modernifier, as a mod!",
+  "authors": [
+    "Illogicworks"
+  ],
+  "contact": {
+    "homepage": "https://github.com/illogicworks/",
+    "sources": "https://github.com/illogicworks/modernifier"
+  },
+
+  "license": "GPL v3",
+  "icon": "images/MarsSurfacePathfinder.png",
+
+  "entrypoints": {
+    "preLaunch": [
+      "com.formdev.flatlaf.FlatLightLaf::setup"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=0.14.17",
+    "java": ">=11"
+  }
+}
