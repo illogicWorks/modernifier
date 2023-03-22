@@ -109,6 +109,7 @@ public class Installation {
 		return !Files.isDirectory(p)
 				&& !p.toString().startsWith("/illogicworks") // don't copy installer
 				&& !p.toString().equals('/' + MF_PATH) // we special-case the manifest later
+				&& !p.toString().equals("/fabric.mod.json") // don't copy mod json
 				&& !p.toString().equals("/module-info.class");
 	}
 
