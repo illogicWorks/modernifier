@@ -18,7 +18,7 @@ public class Installation {
 	private static final String MF_ENTRY = "Modernified";
 	private static final String LAUNCHER_CLASS = ModernLauncher.class.getName();
 	private static final String DEV_PATH = "bin/built.jar";
-	private static final boolean DEV_ENV = true;
+	private static final boolean DEV_ENV = false;
 	private static int FILE_COUNT; // lazy at getFileCount
 	
 	public static void install(Path targetPath, ProgressHandler progress) throws IOException {
